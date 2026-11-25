@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="计算巢是阿里云开放给企业应用服务商的服务管理平台。服务商能够在计算巢上发布私有化部署服务，为其客户提供云上软件一键部署的能力；同时也支持全托管模式的服务，赋能服务商托管其客户资源。">
+  <title>中文 - Aliyun 计算巢 x Pascal Editor</title>
+
+  <link rel="shortcut icon" href="img/favicon.ico">
+
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+  <link rel="stylesheet" href="css/theme.css">
+  
+
+  
+
+  
+  
+
+  
+    <script src="search/main.js"></script>
+  
+
+  
+
+  <script src="js/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="nav-inner">
+        <div class="logo">
+          <img src="./img/logo-2x.png">
+        </div>
+        <div class="nav-list">
+          <ul>
+          
+              <li><a href="#pascal-editor">Pascal Editor 计算巢部署文档</a></li>
+              
+                  <li><a href="#_1">服务说明</a></li>
+                  
+              
+                  <li><a href="#_2">计费说明</a></li>
+                  
+              
+                  <li><a href="#ram">RAM账号所需权限</a></li>
+                  
+              
+                  <li><a href="#_3">服务实例部署流程</a></li>
+                  
+                      <li class="li-h3"><a href="#_4">部署步骤</a></li>
+                  
+              
+                  <li><a href="#_5">首次使用说明</a></li>
+                  
+                      <li class="li-h3"><a href="#1">1. 登录与工作区</a></li>
+                  
+                      <li class="li-h3"><a href="#2">2. 数据持久化</a></li>
+                  
+                      <li class="li-h3"><a href="#3-agent-api">3. Agent API</a></li>
+                  
+                      <li class="li-h3"><a href="#4">4. 修改运行参数</a></li>
+                  
+              
+                  <li><a href="#_6">参数说明</a></li>
+                  
+              
+                  <li><a href="#_7">输出说明</a></li>
+                  
+              
+                  <li><a href="#_8">安全与使用说明</a></li>
+                  
+              
+                  <li><a href="#_9">常见问题</a></li>
+                  
+              
+                  <li><a href="#_10">官方链接</a></li>
+                  
+              
+          
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content theme-github">
+      
+      <div class="content-inner">        
+        
+        <h1 id="pascal-editor">Pascal Editor 计算巢部署文档</h1>
+<h2 id="_1">服务说明</h2>
+<p>Pascal Editor 是一款 MIT 许可开源的浏览器端 3D 建筑编辑器，可自托管。墙、楼板、门窗、房间都是参数化构件——改动一处，依附其上的构件自动跟随更新；一个场景就是一个可编辑的建筑模型，而不是一堆散图。支持从零建模、把 3D 扫描得到的点云或模型导入为参考底模、导入 IFC 转换构件，也可以把同一场景通过 MCP 交给 AI Agent 读取和修改。</p>
+<p>本计算巢服务采用单机 ECS 部署，ECS 镜像内已预置 Pascal Editor 与 Docker Compose 运行环境，项目数据保存在实例本机，不经过任何第三方服务。</p>
+<p>访问入口为实例公网 IP 的 3000 端口：打开后跳转登录页，输入部署时生成（或在输出中查看）的编辑器访问密码即可进入工作区。工作区是单一共享空间，所有登录者看到同一批项目。</p>
+<h2 id="_2">计费说明</h2>
+<p>通过此服务模板构建服务不产生费用。用户部署服务实例时，资源费用主要涉及：</p>
+<ul>
+<li>ECS 实例规格（最低 2 vCPU、4 GiB 内存）</li>
+<li>系统盘容量（模板固定 200 GiB ESSD）</li>
+<li>公网带宽（模板固定 5 Mbps）</li>
+</ul>
+<p>计费方式支持按量付费和包年包月，预估费用会在部署前实时展示。</p>
+<h2 id="ram">RAM账号所需权限</h2>
+<p>若使用 RAM 用户创建服务实例，需要在创建服务实例前为该 RAM 用户添加相应权限。</p>
+<table>
+<thead>
+<tr>
+<th>权限策略名称</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AliyunECSFullAccess</td>
+<td>管理云服务器 ECS 的权限</td>
+</tr>
+<tr>
+<td>AliyunVPCFullAccess</td>
+<td>管理专有网络 VPC 的权限</td>
+</tr>
+<tr>
+<td>AliyunROSFullAccess</td>
+<td>管理资源编排 ROS 的权限</td>
+</tr>
+<tr>
+<td>AliyunComputeNestUserFullAccess</td>
+<td>管理计算巢服务用户侧资源的权限</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">服务实例部署流程</h2>
+<h3 id="_4">部署步骤</h3>
+<ol>
+<li>打开计算巢服务实例创建页面，选择部署地域，填写实例规格、实例密码。网络可选择新建 VPC，也可以选择已有的 VPC 与交换机。</li>
+</ol>
+<p><a href="https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&amp;ServiceId=service-01c2fa28facd4d018018">部署链接</a></p>
+<p><img alt="创建服务实例" src="create-instance.png" /></p>
+<ol>
+<li>
+<p>确认询价明细后点击 <strong>下一步：确认订单</strong>，同意服务协议并点击 <strong>立即创建</strong>。</p>
+</li>
+<li>
+<p>等待服务实例部署完成。部署完成后，在服务实例详情页的 <strong>输出</strong> 区域查看 <code>pascal_editor_3000_url</code> 访问地址、<code>AdminPassword</code> 编辑器访问密码与 <code>SceneApiToken</code> Agent API 令牌。</p>
+</li>
+<li>
+<p>用浏览器打开输出中的访问地址（<code>http://&lt;实例公网IP&gt;:3000</code>），在登录页输入编辑器访问密码，进入工作区后点击 <strong>New project</strong> 即可打开编辑器。</p>
+</li>
+</ol>
+<p><img alt="Pascal Editor 编辑器界面" src="app.png" /></p>
+<h2 id="_5">首次使用说明</h2>
+<h3 id="1">1. 登录与工作区</h3>
+<p>登录页只有一个口令入口，即输出中的「编辑器访问密码」。进入后即是工作区，包含项目列表与编辑器画布；浏览器打开的是一整套 Web 应用，团队成员不需要安装桌面端软件。</p>
+<h3 id="2">2. 数据持久化</h3>
+<p>项目数据与配置保存在实例系统盘的 <code>/opt/pascal-editor</code> 目录，容器重启或重建不会丢失；释放服务实例时该目录随实例一起删除，请定期备份或导出需要的模型。</p>
+<h3 id="3-agent-api">3. Agent API</h3>
+<p>模板已把实例公网地址写入 <code>PASCAL_PUBLIC_URL</code> 与 <code>PASCAL_SCENE_API_ORIGINS</code>，<code>/api/scenes</code> 接口仅接受来自本实例公网地址的浏览器 Origin 与非公开的 Bearer 令牌。脚本或 AI Agent 调用时，请使用输出中的「Agent API 令牌」，不要把它写进前端代码。</p>
+<h3 id="4">4. 修改运行参数</h3>
+<p>如需调整运行参数，登录实例编辑 <code>/opt/pascal-editor/.env</code>，然后执行 <code>cd /opt/pascal-editor &amp;&amp; docker compose up -d</code> 生效。</p>
+<h2 id="_6">参数说明</h2>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VpcOption</td>
+<td>网络类型，新建 VPC 或使用已有 VPC</td>
+<td>NewVPC</td>
+</tr>
+<tr>
+<td>VpcCidrBlock</td>
+<td>新建 VPC 的网段</td>
+<td>192.168.0.0/16</td>
+</tr>
+<tr>
+<td>VSwitchCidrBlock</td>
+<td>新建交换机的网段</td>
+<td>192.168.1.0/24</td>
+</tr>
+<tr>
+<td>EcsInstanceType</td>
+<td>ECS 实例规格，最低 2 vCPU 4 GiB</td>
+<td>无</td>
+</tr>
+<tr>
+<td>InstancePassword</td>
+<td>实例登录密码</td>
+<td>无</td>
+</tr>
+<tr>
+<td>PayType</td>
+<td>付费类型</td>
+<td>PostPaid</td>
+</tr>
+<tr>
+<td>ZoneId</td>
+<td>可用区</td>
+<td>无</td>
+</tr>
+<tr>
+<td>VpcId / VSwitchId</td>
+<td>已有 VPC 与交换机 ID（选择已有 VPC 时填写）</td>
+<td>空</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_7">输出说明</h2>
+<table>
+<thead>
+<tr>
+<th>输出</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pascal_editor_3000_url</td>
+<td>编辑器访问地址（端口 3000）</td>
+</tr>
+<tr>
+<td>AdminPassword</td>
+<td>编辑器访问密码（登录页唯一口令）</td>
+</tr>
+<tr>
+<td>SceneApiToken</td>
+<td>Agent API 令牌，调用 <code>/api/scenes</code> 时的 Bearer</td>
+</tr>
+<tr>
+<td>QuickStartGuide</td>
+<td>首次登录与 API 调用提示</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_8">安全与使用说明</h2>
+<ul>
+<li>编辑器为单口令鉴权，不要将访问密码或 Agent API 令牌公开分享，泄露后请在实例内修改 <code>.env</code> 中的 <code>PASCAL_ADMIN_PASSWORD</code> / <code>PASCAL_SCENE_API_TOKEN</code> 并重启容器。</li>
+<li>模板只为实例自己的公网地址放行 API Origin，其他域名的浏览器请求会被拒绝。</li>
+<li>所有项目数据保存在实例系统盘 <code>/opt/pascal-editor</code>，释放服务实例会一并删除，请提前备份需要的模型。</li>
+</ul>
+<h2 id="_9">常见问题</h2>
+<p><strong>打开地址后停在登录页？</strong>
+确认输入的是服务实例输出中的「编辑器访问密码」，而不是 ECS 的登录密码。</p>
+<p><strong>脚本调用 <code>/api/scenes</code> 返回 401 或 403？</strong>
+401 表示缺少或错误的 Bearer 令牌；403 且提示 origin 相关时，说明请求的 Origin 不是 <code>PASCAL_PUBLIC_URL</code> 对应的地址。</p>
+<p><strong>导入大模型或点云时页面变慢？</strong>
+3D 扫描导入对显存和内存占用较高，建议使用 4 GiB 以上内存规格，并在浏览器端关闭其他占用较高的页面。</p>
+<h2 id="_10">官方链接</h2>
+<ul>
+<li>官方仓库：https://github.com/pascalorg/editor</li>
+<li>许可证：MIT</li>
+</ul>
+        
+      </div>
+
+      <div class="copyrights">© 2009-2022 Aliyun.com 版权所有</div>
+    </div>
+  </div>
+  
+  <!--
+  MkDocs version      : 1.6.1
+  Docs Build Date UTC : 2026-11-25 09:52:08.467954+00:00
+  -->
+</body>
+</html>

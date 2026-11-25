@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="计算巢是阿里云开放给企业应用服务商的服务管理平台。服务商能够在计算巢上发布私有化部署服务，为其客户提供云上软件一键部署的能力；同时也支持全托管模式的服务，赋能服务商托管其客户资源。">
+  <title>English - Aliyun 计算巢 x Pascal Editor</title>
+
+  <link rel="shortcut icon" href="../img/favicon.ico">
+
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+  <link rel="stylesheet" href="../css/theme.css">
+  
+
+  
+
+  
+  
+
+  
+    <script src="../search/main.js"></script>
+  
+
+  
+
+  <script src="../js/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="nav">
+      <div class="nav-inner">
+        <div class="logo">
+          <img src="./img/logo-2x.png">
+        </div>
+        <div class="nav-list">
+          <ul>
+          
+              <li><a href="#deploying-pascal-editor-on-alibaba-cloud-compute-nest">Deploying Pascal Editor on Alibaba Cloud Compute Nest</a></li>
+              
+                  <li><a href="#about-the-service">About the service</a></li>
+                  
+              
+                  <li><a href="#billing">Billing</a></li>
+                  
+              
+                  <li><a href="#required-ram-permissions">Required RAM permissions</a></li>
+                  
+              
+                  <li><a href="#deployment-steps">Deployment steps</a></li>
+                  
+              
+                  <li><a href="#first-steps">First steps</a></li>
+                  
+                      <li class="li-h3"><a href="#sign-in-and-workspace">Sign-in and workspace</a></li>
+                  
+                      <li class="li-h3"><a href="#data-persistence">Data persistence</a></li>
+                  
+                      <li class="li-h3"><a href="#agent-api">Agent API</a></li>
+                  
+                      <li class="li-h3"><a href="#changing-runtime-settings">Changing runtime settings</a></li>
+                  
+              
+                  <li><a href="#parameters">Parameters</a></li>
+                  
+              
+                  <li><a href="#outputs">Outputs</a></li>
+                  
+              
+                  <li><a href="#security-notes">Security notes</a></li>
+                  
+              
+                  <li><a href="#troubleshooting">Troubleshooting</a></li>
+                  
+              
+                  <li><a href="#links">Links</a></li>
+                  
+              
+          
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="content theme-github">
+      
+      <div class="content-inner">        
+        
+        <h1 id="deploying-pascal-editor-on-alibaba-cloud-compute-nest">Deploying Pascal Editor on Alibaba Cloud Compute Nest</h1>
+<h2 id="about-the-service">About the service</h2>
+<p>Pascal Editor is an MIT-licensed, self-hosted 3D building editor that runs entirely in the browser. Walls, slabs, doors, windows and rooms are parametric components: changing one element updates everything hosted on it. A scene is an editable building model rather than a set of drawings. You can model from scratch, import a 3D scan as a reference, import IFC files, and hand the same scene to an AI agent over MCP for reading and editing.</p>
+<p>This Compute Nest service deploys a single ECS instance. The image already contains Pascal Editor and its Docker Compose runtime, and all project data stays on the instance.</p>
+<p>The editor is served on port 3000 of the instance public IP. Opening the address redirects to a sign-in page that takes the editor access password generated during deployment. The workspace is a single shared space: everyone who signs in sees the same projects.</p>
+<h2 id="billing">Billing</h2>
+<p>Creating a service from this template is free. Running a service instance incurs:</p>
+<ul>
+<li>ECS instance (minimum 2 vCPU, 4 GiB memory)</li>
+<li>System disk (fixed at 200 GiB ESSD by the template)</li>
+<li>Public bandwidth (fixed at 5 Mbps by the template)</li>
+</ul>
+<p>Both pay-as-you-go and subscription are supported; the estimate is shown before you confirm the order.</p>
+<h2 id="required-ram-permissions">Required RAM permissions</h2>
+<p>If you create the instance with a RAM user, grant the following policies first.</p>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AliyunECSFullAccess</td>
+<td>Manage ECS instances</td>
+</tr>
+<tr>
+<td>AliyunVPCFullAccess</td>
+<td>Manage VPC resources</td>
+</tr>
+<tr>
+<td>AliyunROSFullAccess</td>
+<td>Manage Resource Orchestration Service stacks</td>
+</tr>
+<tr>
+<td>AliyunComputeNestUserFullAccess</td>
+<td>Manage Compute Nest user-side resources</td>
+</tr>
+</tbody>
+</table>
+<h2 id="deployment-steps">Deployment steps</h2>
+<ol>
+<li>Open the instance creation page, choose a region, and specify the instance type and instance password. You can create a new VPC or use an existing VPC and vSwitch.</li>
+</ol>
+<p><a href="https://computenest.console.aliyun.com/service/instance/create/cn-hangzhou?type=user&amp;ServiceId=service-01c2fa28facd4d018018">Deploy now</a></p>
+<p><img alt="Create a service instance" src="../create-instance.png" /></p>
+<ol>
+<li>
+<p>Review the price estimate, choose <strong>Next: Confirm Order</strong>, accept the service agreement and click <strong>Create Now</strong>.</p>
+</li>
+<li>
+<p>Wait for the deployment to finish. The <strong>Outputs</strong> section of the instance details page lists <code>pascal_editor_3000_url</code>, the editor access password (<code>AdminPassword</code>) and the agent API token (<code>SceneApiToken</code>).</p>
+</li>
+<li>
+<p>Open the URL from the outputs (<code>http://&lt;public-ip&gt;:3000</code>), enter the editor access password, then click <strong>New project</strong> in the workspace to open the editor.</p>
+</li>
+</ol>
+<p><img alt="Pascal Editor canvas" src="../app.png" /></p>
+<h2 id="first-steps">First steps</h2>
+<h3 id="sign-in-and-workspace">Sign-in and workspace</h3>
+<p>The sign-in page has a single password field — the editor access password from the outputs. After signing in you land in the workspace with the project list and the editor canvas. Nothing needs to be installed on client machines.</p>
+<h3 id="data-persistence">Data persistence</h3>
+<p>Projects and configuration live under <code>/opt/pascal-editor</code> on the instance system disk. Container restarts and rebuilds keep the data; releasing the service instance deletes it, so back up or export models you want to keep.</p>
+<h3 id="agent-api">Agent API</h3>
+<p>The template writes the instance public URL into <code>PASCAL_PUBLIC_URL</code> and <code>PASCAL_SCENE_API_ORIGINS</code>. The <code>/api/scenes</code> endpoint only accepts browser origins from that URL and a non-public bearer token. Scripts and agents must send the <code>SceneApiToken</code> value as a bearer token and must not embed it in front-end code.</p>
+<h3 id="changing-runtime-settings">Changing runtime settings</h3>
+<p>Edit <code>/opt/pascal-editor/.env</code> on the instance, then run <code>cd /opt/pascal-editor &amp;&amp; docker compose up -d</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VpcOption</td>
+<td>Create a new VPC or reuse an existing one</td>
+<td>NewVPC</td>
+</tr>
+<tr>
+<td>VpcCidrBlock</td>
+<td>CIDR block of the new VPC</td>
+<td>192.168.0.0/16</td>
+</tr>
+<tr>
+<td>VSwitchCidrBlock</td>
+<td>CIDR block of the new vSwitch</td>
+<td>192.168.1.0/24</td>
+</tr>
+<tr>
+<td>EcsInstanceType</td>
+<td>ECS instance type, at least 2 vCPU / 4 GiB</td>
+<td>none</td>
+</tr>
+<tr>
+<td>InstancePassword</td>
+<td>Password for the ECS instance</td>
+<td>none</td>
+</tr>
+<tr>
+<td>PayType</td>
+<td>Billing method</td>
+<td>PostPaid</td>
+</tr>
+<tr>
+<td>ZoneId</td>
+<td>Availability zone</td>
+<td>none</td>
+</tr>
+<tr>
+<td>VpcId / VSwitchId</td>
+<td>Existing VPC and vSwitch (when reusing a VPC)</td>
+<td>empty</td>
+</tr>
+</tbody>
+</table>
+<h2 id="outputs">Outputs</h2>
+<table>
+<thead>
+<tr>
+<th>Output</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pascal_editor_3000_url</td>
+<td>Editor URL (port 3000)</td>
+</tr>
+<tr>
+<td>AdminPassword</td>
+<td>Editor access password (single sign-in password)</td>
+</tr>
+<tr>
+<td>SceneApiToken</td>
+<td>Bearer token for <code>/api/scenes</code></td>
+</tr>
+<tr>
+<td>QuickStartGuide</td>
+<td>First sign-in and API hints</td>
+</tr>
+</tbody>
+</table>
+<h2 id="security-notes">Security notes</h2>
+<ul>
+<li>The editor uses a single password. Do not share the access password or the agent API token; if leaked, update <code>PASCAL_ADMIN_PASSWORD</code> / <code>PASCAL_SCENE_API_TOKEN</code> in <code>.env</code> and restart the container.</li>
+<li>Only the instance's own public origin is allowed to call the API from a browser.</li>
+<li>All project data is stored on the system disk under <code>/opt/pascal-editor</code> and is removed together with the instance.</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p><strong>The page stays on the sign-in screen.</strong> Use the editor access password from the instance outputs, not the ECS login password.</p>
+<p><strong><code>/api/scenes</code> returns 401 or 403.</strong> 401 means a missing or wrong bearer token. A 403 mentioning origin means the request origin differs from <code>PASCAL_PUBLIC_URL</code>.</p>
+<p><strong>Large 3D scans load slowly.</strong> Scan import is memory hungry; use 4 GiB or more and close other heavy browser tabs.</p>
+<h2 id="links">Links</h2>
+<ul>
+<li>Source code: https://github.com/pascalorg/editor</li>
+<li>License: MIT</li>
+</ul>
+        
+      </div>
+
+      <div class="copyrights">© 2009-2022 Aliyun.com 版权所有</div>
+    </div>
+  </div>
+  
+  <!--
+  MkDocs version      : 1.6.1
+  Docs Build Date UTC : 2026-11-25 09:52:08.493157+00:00
+  -->
+</body>
+</html>
